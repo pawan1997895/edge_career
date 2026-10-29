@@ -3,7 +3,8 @@ import { Logo } from "@/components/shared/brand";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { routes } from "@/lib/routes";
 
-// Sign-in, sign-up, email verification and onboarding: a minimal centered layout.
+// Email verification: a minimal centered layout.
+// Sign-in, sign-up and onboarding use the animated AI layout in (auth-entry).
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-/** Centered card used by sign-in, sign-up and verify. */
+/** Centered card used by the verify page. */
 export function AuthCard({
   title,
   description,

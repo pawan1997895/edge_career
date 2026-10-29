@@ -1,7 +1,9 @@
 "use client";
 
 import { Briefcase, Building, Check, GraduationCap, Repeat, Route, Sparkles, Target, Timer } from "lucide-react";
-import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
+import { AnimatePresence, motion } from "motion/react";
+import { RadioGroup } from "@/components/ui/radio-group";
+import { PRESS_SPRING, stepItem } from "@/components/ai-theme/presets";
 import { cn } from "@/lib/utils";
 import {
   LEVEL_LABELS,
@@ -12,6 +14,7 @@ import {
   type SalaryBand,
 } from "@/types/user";
 import { LEVEL_DESCRIPTIONS, MAX_COMPANIES, type OnboardingAnswers } from "@/features/onboarding/steps";
+import { OptionCard } from "./option-card";
 
 const PERSONA_ICONS: Record<Persona, React.ReactNode> = {
   student: <GraduationCap />,
@@ -24,7 +27,7 @@ export function PersonaStep({ value, onChange }: { value?: Persona; onChange: (v
   return (
     <RadioGroup value={value ?? ""} onValueChange={(v) => onChange(v as Persona)}>
       {(Object.keys(PERSONA_LABELS) as Persona[]).map((p) => (
-        <RadioCard key={p} value={p} title={PERSONA_LABELS[p]} icon={PERSONA_ICONS[p]} />
+        <OptionCard key={p} value={p} title={PERSONA_LABELS[p]} icon={PERSONA_ICONS[p]} />
       ))}
     </RadioGroup>
   );
@@ -34,7 +37,7 @@ export function LevelStep({ value, onChange }: { value?: Level; onChange: (v: Le
   return (
     <RadioGroup value={value ?? ""} onValueChange={(v) => onChange(v as Level)} className="sm:grid-cols-2">
       {(Object.keys(LEVEL_LABELS) as Level[]).map((l) => (
-        <RadioCard key={l} value={l} title={LEVEL_LABELS[l]} description={LEVEL_DESCRIPTIONS[l]} />
+        <OptionCard key={l} value={l} title={LEVEL_LABELS[l]} description={LEVEL_DESCRIPTIONS[l]} />
       ))}
     </RadioGroup>
   );
@@ -55,33 +58,72 @@ export function CompaniesStep({
   }
   return (
     <div>
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Target companies">
+      <motion.div variants={stepItem} className="flex flex-wrap gap-2" role="group" aria-label="Target companies">
         {options.map((company) => {
           const selected = value.includes(company);
           const disabled = full && !selected;
           return (
-            <button
+            <motion.button
               key={company}
               type="button"
               aria-pressed={selected}
               disabled={disabled}
               onClick={() => toggle(company)}
+              whileHover={disabled ? undefined : { y: -1 }}
+              whileTap={disabled ? undefined : { scale: 0.95 }}
+              transition={PRESS_SPRING}
               className={cn(
-                "inline-flex h-9 items-center gap-1.5 rounded-full border bg-card px-3.5 text-sm transition-colors",
-                selected ? "border-primary bg-accent text-accent-foreground" : "hover:bg-accent/50",
-                disabled && "cursor-not-allowed opacity-50",
+                "inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm outline-none transition-[border-color,background-color,box-shadow,color] duration-300",
+                "focus-visible:ring-[3px] focus-visible:ring-(--ec-cyan)/40",
+                selected
+                  ? "border-(--ec-cyan)/70 bg-(--ec-blue)/15 text-foreground shadow-[0_0_20px_-8px_var(--ec-cyan)]"
+                  : "border-border/70 bg-background/40 hover:border-(--ec-blue)/50 hover:bg-background/60",
+                disabled && "cursor-not-allowed opacity-40",
               )}
             >
-              {selected ? <Check className="size-3.5" /> : <Building className="size-3.5 text-muted-foreground" />}
+              <AnimatePresence mode="wait" initial={false}>
+                {selected ? (
+                  <motion.span
+                    key="selected"
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    exit={{ scale: 0 }}
+                    transition={{ type: "spring", stiffness: 520, damping: 24 }}
+                    className="text-(--ec-cyan)"
+                  >
+                    <Check className="size-3.5" strokeWidth={3} />
+                  </motion.span>
+                ) : (
+                  <motion.span key="idle" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.15 }}>
+                    <Building className="size-3.5 text-muted-foreground" />
+                  </motion.span>
+                )}
+              </AnimatePresence>
               {company}
-            </button>
+            </motion.button>
           );
         })}
-      </div>
-      <p className="mt-3 text-sm text-muted-foreground">
-        {value.length} of {MAX_COMPANIES} selected
-        {full && " · deselect one to choose another"}
-      </p>
+      </motion.div>
+      <motion.div variants={stepItem} className="mt-4 flex items-center gap-3 text-sm text-muted-foreground">
+        <span aria-hidden className="flex gap-1.5">
+          {Array.from({ length: MAX_COMPANIES }, (_, i) => (
+            <motion.span
+              key={i}
+              initial={false}
+              animate={{ scale: i < value.length ? 1 : 0.75 }}
+              transition={{ type: "spring", stiffness: 500, damping: 22 }}
+              className={cn(
+                "size-2 rounded-full transition-colors duration-300",
+                i < value.length ? "bg-(--ec-cyan) shadow-[0_0_8px_var(--ec-cyan)]" : "bg-muted",
+              )}
+            />
+          ))}
+        </span>
+        <span>
+          {value.length} of {MAX_COMPANIES} selected
+          {full && " · deselect one to choose another"}
+        </span>
+      </motion.div>
     </div>
   );
 }
@@ -90,7 +132,7 @@ export function SalaryStep({ value, onChange }: { value?: SalaryBand; onChange: 
   return (
     <RadioGroup value={value ?? ""} onValueChange={(v) => onChange(v as SalaryBand)} className="sm:grid-cols-2">
       {(Object.keys(SALARY_LABELS) as SalaryBand[]).map((band) => (
-        <RadioCard key={band} value={band} title={SALARY_LABELS[band]} description="Total annual compensation" />
+        <OptionCard key={band} value={band} title={SALARY_LABELS[band]} description="Total annual compensation" />
       ))}
     </RadioGroup>
   );
@@ -99,13 +141,13 @@ export function SalaryStep({ value, onChange }: { value?: SalaryBand; onChange: 
 export function StartStep({ value, onChange }: { value?: OnboardingAnswers["start"]; onChange: (v: "placement" | "module1") => void }) {
   return (
     <RadioGroup value={value ?? ""} onValueChange={(v) => onChange(v as "placement" | "module1")}>
-      <RadioCard
+      <OptionCard
         value="placement"
         icon={<Timer />}
         title="Take the placement test (recommended)"
         description="About 90 minutes. Test out of the modules you already know and start where you’ll actually learn something."
       />
-      <RadioCard
+      <OptionCard
         value="module1"
         icon={<Route />}
         title="Start from Module 1"
@@ -125,21 +167,28 @@ export function SummaryStep({ answers }: { answers: OnboardingAnswers }) {
   ];
   return (
     <div className="space-y-4">
-      <dl className="divide-y rounded-lg border">
+      <dl className="divide-y divide-border/60 overflow-hidden rounded-xl border border-border/60 bg-background/30">
         {rows.map((row) => (
-          <div key={row.label} className="flex flex-col gap-0.5 px-4 py-3 sm:flex-row sm:justify-between sm:gap-4">
+          <motion.div
+            key={row.label}
+            variants={stepItem}
+            className="flex flex-col gap-0.5 px-4 py-3 sm:flex-row sm:justify-between sm:gap-4"
+          >
             <dt className="text-sm text-muted-foreground">{row.label}</dt>
             <dd className="text-sm font-medium sm:text-right">{row.value}</dd>
-          </div>
+          </motion.div>
         ))}
       </dl>
-      <div className="flex gap-3 rounded-lg bg-muted/60 p-4 text-sm">
-        <Target className="mt-0.5 size-4 shrink-0 text-primary" />
+      <motion.div
+        variants={stepItem}
+        className="flex gap-3 rounded-xl border border-(--ec-cyan)/25 bg-(--ec-cyan)/8 p-4 text-sm shadow-[0_0_30px_-14px_var(--ec-cyan)]"
+      >
+        <Target className="mt-0.5 size-4 shrink-0 text-(--ec-cyan)" />
         <p className="text-muted-foreground">
           We’ll use your targets to set readiness bars on your dashboard and to pick practice problems. You can change any of
           this later in your profile.
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }
