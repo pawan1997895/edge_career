@@ -6,14 +6,16 @@ import styles from "./ai-theme.module.css";
 
 /**
  * Primary call to action for sign-in / sign-up: gradient fill, a slowly rotating
- * gradient border, a light sweep on hover and a small press response.
+ * gradient border, a light sweep on hover and a small press response. `intense` adds a
+ * breathing glow and a recurring shimmer (sign-up and onboarding).
  */
 export function GlowButton({
   className,
   children,
   disabled,
+  intense = false,
   ...props
-}: Omit<HTMLMotionProps<"button">, "children"> & { children?: React.ReactNode }) {
+}: Omit<HTMLMotionProps<"button">, "children"> & { children?: React.ReactNode; intense?: boolean }) {
   return (
     <motion.button
       whileHover={disabled ? undefined : { y: -1 }}
@@ -24,6 +26,7 @@ export function GlowButton({
         "group relative inline-flex h-11 w-full overflow-hidden rounded-lg p-px text-sm font-medium outline-none transition-shadow duration-300",
         "hover:shadow-[0_14px_40px_-14px_var(--ec-blue)] focus-visible:ring-[3px] focus-visible:ring-(--ec-cyan)/45",
         "disabled:cursor-not-allowed disabled:opacity-75",
+        intense && !disabled && styles.ctaGlow,
         className,
       )}
       {...props}
@@ -37,6 +40,7 @@ export function GlowButton({
           "motion-safe:group-hover:after:left-[130%] motion-safe:group-hover:after:opacity-100",
         )}
       >
+        {intense && !disabled && <span aria-hidden className={styles.ctaShimmer} />}
         {children}
       </span>
     </motion.button>

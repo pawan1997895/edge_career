@@ -73,7 +73,7 @@ export function CompaniesStep({
               whileTap={disabled ? undefined : { scale: 0.95 }}
               transition={PRESS_SPRING}
               className={cn(
-                "inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm outline-none transition-[border-color,background-color,box-shadow,color] duration-300",
+                "relative inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm outline-none transition-[border-color,background-color,box-shadow,color] duration-300",
                 "focus-visible:ring-[3px] focus-visible:ring-(--ec-cyan)/40",
                 selected
                   ? "border-(--ec-cyan)/70 bg-(--ec-blue)/15 text-foreground shadow-[0_0_20px_-8px_var(--ec-cyan)]"
@@ -81,6 +81,16 @@ export function CompaniesStep({
                 disabled && "cursor-not-allowed opacity-40",
               )}
             >
+              {selected && (
+                // One ring burst when a company is picked.
+                <motion.span
+                  aria-hidden
+                  initial={{ opacity: 0.7, scale: 1 }}
+                  animate={{ opacity: 0, scale: 1.3 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="pointer-events-none absolute inset-0 rounded-full border border-(--ec-cyan)"
+                />
+              )}
               <AnimatePresence mode="wait" initial={false}>
                 {selected ? (
                   <motion.span

@@ -95,6 +95,236 @@
   animation: pulse-ring 2.4s ease-out infinite;
 }
 
+/*
+ * Coding layer for sign-up and onboarding (sign-in does not use these): a panning line grid,
+ * the code canvas (dimmed in the middle where the form sits) and a slow scan line.
+ */
+.codeGrid {
+  position: absolute;
+  inset: -56px 0 0;
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, var(--ec-blue) 11%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--ec-blue) 11%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at 50% 50%, rgb(0 0 0 / 0.3) 0%, black 55%, transparent 92%);
+  animation: grid-pan 12s linear infinite;
+  will-change: transform;
+}
+
+.codeCanvas {
+  mask-image: radial-gradient(ellipse 50% 48% at 50% 52%, rgb(0 0 0 / 0.3) 0%, rgb(0 0 0 / 0.3) 45%, black 100%);
+}
+
+.scanLine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(in oklch, var(--ec-cyan) 4%, transparent) 80%,
+      color-mix(in oklch, var(--ec-cyan) 18%, transparent) 99%,
+      transparent
+    )
+    bottom / 100% 180px no-repeat;
+  animation: scan 11s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: transform;
+}
+
+/* Blinking terminal cursor */
+.cursor {
+  animation: blink 1.1s steps(1) infinite;
+}
+
+/*
+ * CSS typing for the sign-up terminal (mono text, so 1ch = one character). Each element gets
+ * --start (delay), and typed text also --chars and --dur, from the component's timeline.
+ */
+/* Full width is the resting style; the animation only covers the typing (backwards fill), so the
+   finished line never depends on a stepped animation's last frame landing exactly on 100%. */
+.typed {
+  display: inline-block;
+  overflow: hidden;
+  width: calc(var(--chars) * 1ch);
+  animation: type var(--dur) steps(var(--chars), end) var(--start) backwards;
+}
+
+.reveal {
+  opacity: 0;
+  animation: reveal 0s var(--start) forwards;
+}
+
+/*
+ * Solid while its line types (--start to --end); only the last line's cursor stays and blinks,
+ * so no hidden element keeps an animation running.
+ */
+.lineCursor {
+  visibility: hidden;
+  animation:
+    show 0s var(--start) forwards,
+    hide 0s var(--end) forwards;
+}
+
+.lineCursor[data-last] {
+  animation:
+    show 0s var(--start) forwards,
+    blink 1.1s steps(1) var(--start) infinite;
+}
+
+/* Sound button equaliser bars */
+.eqBar {
+  transform-origin: bottom;
+  animation: eq 0.9s ease-in-out infinite alternate;
+}
+
+/*
+ * Stronger primary button on sign-up and onboarding: a steady glow (not animated, since an
+ * animated box-shadow repaints every frame) plus a recurring shimmer that runs on the GPU.
+ */
+.ctaGlow {
+  box-shadow:
+    0 12px 36px -14px var(--ec-blue),
+    0 0 24px -8px color-mix(in oklch, var(--ec-violet) 60%, transparent);
+}
+
+.ctaShimmer {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 40%;
+  background: linear-gradient(100deg, transparent, color-mix(in oklch, white 22%, transparent), transparent);
+  animation: shimmer 4.2s ease-in-out infinite;
+}
+
+/* One sweep of light across an onboarding answer when it is selected */
+.selectSweep {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 55%;
+  background: linear-gradient(100deg, transparent, color-mix(in oklch, var(--ec-cyan) 16%, transparent), transparent);
+  animation: select-sweep 0.9s ease-out forwards;
+}
+
+/* Corner brackets and progress shimmer */
+.hudPulse {
+  animation: hud-pulse 3.2s ease-in-out infinite;
+}
+
+/* Large braces beside the sign-up card */
+.braceFloat {
+  animation: brace-float 6s ease-in-out infinite;
+}
+
+.railShimmer {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, color-mix(in oklch, white 70%, transparent), transparent);
+  animation: rail-shimmer 2.6s ease-in-out infinite;
+}
+
+@keyframes grid-pan {
+  to {
+    transform: translateY(56px);
+  }
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  60%,
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes type {
+  from {
+    width: 0;
+  }
+}
+
+@keyframes reveal {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes show {
+  to {
+    visibility: visible;
+  }
+}
+
+@keyframes hide {
+  to {
+    visibility: hidden;
+  }
+}
+
+@keyframes eq {
+  from {
+    transform: scaleY(0.3);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-110%);
+  }
+  45%,
+  100% {
+    transform: translateX(260%);
+  }
+}
+
+@keyframes select-sweep {
+  from {
+    transform: translateX(-100%);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(200%);
+    opacity: 0;
+  }
+}
+
+@keyframes brace-float {
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes hud-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes rail-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(340%);
+  }
+}
+
 @keyframes pulse-ring {
   0% {
     transform: scale(1);
@@ -136,10 +366,39 @@
   .orbViolet,
   .orbCyan,
   .ctaBorder,
-  .pulseRing {
+  .pulseRing,
+  .codeGrid,
+  .cursor,
+  .eqBar,
+  .hudPulse,
+  .braceFloat {
     animation: none;
   }
-  .pulseRing {
-    opacity: 0;
+  .pulseRing,
+  .scanLine,
+  .ctaShimmer,
+  .railShimmer {
+    display: none;
+  }
+  /* Its display is toggled by a Tailwind class, so hide it without touching display. */
+  .selectSweep {
+    animation: none;
+    visibility: hidden;
+  }
+  /* Terminal: show the finished script with a still cursor on the last line. */
+  .typed {
+    animation: none;
+    width: auto;
+  }
+  .reveal {
+    animation: none;
+    opacity: 1;
+  }
+  .lineCursor,
+  .lineCursor[data-last] {
+    animation: none;
+  }
+  .lineCursor[data-last] {
+    visibility: visible;
   }
 }

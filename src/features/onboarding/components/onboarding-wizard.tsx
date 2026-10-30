@@ -19,6 +19,7 @@ import {
   StartStep,
   SummaryStep,
 } from "@/features/onboarding/components/onboarding-steps";
+import { ScanSweep, StepComment, StepConsole, WindowBar } from "@/features/onboarding/components/onboarding-chrome";
 import { OnboardingProgress } from "@/features/onboarding/components/onboarding-progress";
 import { PathPreview } from "@/features/onboarding/components/path-preview";
 import { ONBOARDING_STEPS, canContinue, type OnboardingAnswers } from "@/features/onboarding/steps";
@@ -81,16 +82,20 @@ export function OnboardingWizard({ companyOptions }: { companyOptions: string[] 
           className="min-w-0"
         >
           <div className={cn(styles.cardEdge, "rounded-2xl p-px")}>
-            <div className="rounded-[15px] bg-card/80 p-6 backdrop-blur-md sm:p-8">
+            <div className="relative rounded-[15px] bg-card/80 p-6 backdrop-blur-md sm:p-8">
+              <WindowBar stepId={step.id} />
               <AnimatedHeight>
                 <div className="relative">
                   <AnimatePresence mode="popLayout" custom={direction}>
                     <motion.div key={step.id} custom={direction} variants={stepTransition} initial="enter" animate="center" exit="exit">
+                      <motion.div variants={stepItem}>
+                        <StepComment index={stepIndex} label={step.label} />
+                      </motion.div>
                       <motion.h1
                         id={`onboarding-title-${step.id}`}
                         tabIndex={-1}
                         variants={stepItem}
-                        className="text-2xl font-semibold tracking-tight outline-none"
+                        className="mt-0.5 text-2xl font-semibold tracking-tight outline-none"
                       >
                         {copy.title}
                       </motion.h1>
@@ -113,7 +118,10 @@ export function OnboardingWizard({ companyOptions }: { companyOptions: string[] 
                 </div>
               </AnimatedHeight>
 
-              <div className="mt-8 flex items-center justify-between gap-3 border-t border-border/60 pt-5">
+              {/* The console sits in its own row on phones and between the buttons on larger screens. */}
+              <StepConsole stepId={step.id} answers={answers} className="mt-5 sm:hidden" />
+
+              <div className="mt-5 flex items-center justify-between gap-3 border-t border-border/60 pt-5 sm:mt-6">
                 <Button
                   variant="ghost"
                   onClick={() => goTo(stepIndex - 1)}
@@ -122,8 +130,9 @@ export function OnboardingWizard({ companyOptions }: { companyOptions: string[] 
                 >
                   <ArrowLeft /> Back
                 </Button>
+                <StepConsole stepId={step.id} answers={answers} className="hidden flex-1 sm:flex" />
                 {isLast ? (
-                  <GlowButton onClick={finish} disabled={finishing} className="w-auto">
+                  <GlowButton onClick={finish} disabled={finishing} intense className="w-auto">
                     {finishing && <LoaderCircle className="animate-spin" />}
                     {answers.start === "placement" ? "Start the placement test" : "Go to my dashboard"}
                   </GlowButton>
@@ -131,12 +140,14 @@ export function OnboardingWizard({ companyOptions }: { companyOptions: string[] 
                   <GlowButton
                     onClick={() => goTo(stepIndex + 1)}
                     disabled={!canContinue(step.id, answers)}
+                    intense
                     className="w-auto disabled:opacity-45"
                   >
                     Continue <ArrowRight />
                   </GlowButton>
                 )}
               </div>
+              <ScanSweep stepId={step.id} />
             </div>
           </div>
           <p className="mt-4 text-center text-xs text-muted-foreground">You can change these answers any time in Settings.</p>

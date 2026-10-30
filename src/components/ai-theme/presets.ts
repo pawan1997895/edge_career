@@ -17,17 +17,24 @@ export const fadeUp: Variants = {
 };
 
 /**
- * Onboarding step container: slides in from the side the user is moving towards
+ * Onboarding step container: slides and un-blurs in from the side the user is moving towards
  * (`custom` = 1 forward, -1 back) and reveals its motion children one by one.
  */
 export const stepTransition: Variants = {
-  enter: (direction: number) => ({ opacity: 0, x: 28 * direction }),
+  enter: (direction: number) => ({ opacity: 0, x: 28 * direction, filter: "blur(6px)" }),
   center: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.3, ease: EASE_OUT, staggerChildren: 0.04, delayChildren: 0.03 },
+    filter: "blur(0px)",
+    transition: { duration: 0.32, ease: EASE_OUT, staggerChildren: 0.04, delayChildren: 0.03 },
+    transitionEnd: { filter: "none" }, // keep text crisp once settled
   },
-  exit: (direction: number) => ({ opacity: 0, x: -20 * direction, transition: { duration: 0.16, ease: "easeIn" } }),
+  exit: (direction: number) => ({
+    opacity: 0,
+    x: -20 * direction,
+    filter: "blur(4px)",
+    transition: { duration: 0.16, ease: "easeIn" },
+  }),
 };
 
 /** Child of `stepTransition`: fades in while rising slightly. */

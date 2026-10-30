@@ -17,6 +17,8 @@ const socialButtonClass =
   "h-10 border-border/70 bg-background/40 transition-[transform,border-color,background-color,box-shadow] duration-200 hover:border-(--ec-blue)/50 hover:bg-accent/60 hover:shadow-[0_0_24px_-10px_var(--ec-blue)] motion-safe:hover:-translate-y-px";
 const inputClass =
   "h-10 border-border/70 bg-background/50 transition-[border-color,box-shadow,background-color] duration-200 hover:border-border focus-visible:border-(--ec-cyan) focus-visible:bg-background/70 focus-visible:ring-(--ec-cyan)/25";
+// Sign-up only: a soft glow under the focused field.
+const signUpInputClass = `${inputClass} focus-visible:shadow-[0_0_28px_-10px_var(--ec-cyan)]`;
 
 type Mode = "sign-in" | "sign-up";
 type Pending = "email" | "google" | "github" | null;
@@ -35,6 +37,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [pending, setPending] = React.useState<Pending>(null);
 
   const nextAfterSocial = mode === "sign-up" ? routes.onboarding : routes.dashboard;
+  const fieldClass = mode === "sign-up" ? signUpInputClass : inputClass;
 
   function continueWith(provider: "google" | "github") {
     setPending(provider);
@@ -84,7 +87,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
               placeholder="Aarav Mehta"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={inputClass}
+              className={fieldClass}
             />
           </div>
         )}
@@ -102,7 +105,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
             }}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? "email-error" : undefined}
-            className={inputClass}
+            className={fieldClass}
           />
           <AnimatePresence initial={false}>
             {error && (
@@ -121,7 +124,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
             )}
           </AnimatePresence>
         </div>
-        <GlowButton type="submit" disabled={pending !== null}>
+        <GlowButton type="submit" disabled={pending !== null} intense={mode === "sign-up"}>
           {pending === "email" ? <LoaderCircle className="animate-spin" /> : <Mail />}
           {pending === "email" ? "Sending code…" : "Send me a code"}
         </GlowButton>

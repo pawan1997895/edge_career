@@ -4,12 +4,14 @@ import { Check } from "lucide-react";
 import { motion } from "motion/react";
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
 import { PRESS_SPRING, stepItem } from "@/components/ai-theme/presets";
+import styles from "@/components/ai-theme/ai-theme.module.css";
 import { cn } from "@/lib/utils";
 
 /**
  * A selectable onboarding answer (a radio option). Lifts on hover, presses on click,
- * and glows with a popping check mark when selected. Keyboard and screen-reader
- * behaviour comes from the Radix radio group, as with the shared RadioCard.
+ * and when selected glows, gets corner brackets, a sweep of light and a popping check
+ * mark. Keyboard and screen-reader behaviour comes from the Radix radio group, as with
+ * the shared RadioCard.
  */
 export function OptionCard({
   value,
@@ -41,6 +43,18 @@ export function OptionCard({
           className,
         )}
       >
+        <span aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
+          {/* Mounted only while checked, so the sweep plays once on selection. */}
+          <span className={cn(styles.selectSweep, "hidden group-data-[state=checked]:block")} />
+        </span>
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -top-px -left-px size-3 rounded-tl-xl border-t-2 border-l-2 border-(--ec-cyan) opacity-0 transition-opacity duration-300 group-data-[state=checked]:opacity-100"
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-px -bottom-px size-3 rounded-br-xl border-r-2 border-b-2 border-(--ec-violet) opacity-0 transition-opacity duration-300 group-data-[state=checked]:opacity-100"
+        />
         {icon && (
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition-colors duration-300 group-data-[state=checked]:border-(--ec-cyan)/50 group-data-[state=checked]:bg-(--ec-cyan)/10 group-data-[state=checked]:text-(--ec-cyan) [&_svg]:size-4.5">
             {icon}

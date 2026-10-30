@@ -26,7 +26,7 @@ const LINK_BUCKETS = [0.06, 0.12, 0.18, 0.26];
 const MAX_DPR = 1.75;
 
 /** Reads an accent token such as `oklch(0.7 0.17 256)` and returns a helper that adds alpha. */
-function readColor(el: Element, token: string) {
+export function readColor(el: Element, token: string) {
   const value = getComputedStyle(el).getPropertyValue(token).trim() || "oklch(0.7 0.17 256)";
   return (alpha: number) => value.replace(/\)\s*$/, ` / ${alpha})`);
 }

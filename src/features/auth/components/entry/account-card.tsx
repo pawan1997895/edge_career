@@ -1,12 +1,15 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { Lightbulb, Mic, Sparkles, type LucideIcon } from "lucide-react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { AnimatedHeight } from "@/components/ai-theme/animated-height";
 import { EASE_OUT, fadeUp, staggerContainer } from "@/components/ai-theme/presets";
 import styles from "@/components/ai-theme/ai-theme.module.css";
+import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { AuthTabs } from "./auth-tabs";
+import { SignupCardAccents, SignupTerminal } from "./signup-accents";
 
 const HIGHLIGHTS: { icon: LucideIcon; title: string; body: string }[] = [
   { icon: Sparkles, title: "AI feedback on every submission", body: "Hidden tests plus an AI code review that points to the exact line to improve." },
@@ -17,17 +20,20 @@ const HIGHLIGHTS: { icon: LucideIcon; title: string; body: string }[] = [
 /**
  * Sign-in / sign-up card with the switcher, plus the product promise beside it on large
  * screens. Stays mounted between the two pages so the switch animates smoothly.
+ * Sign-up adds coding details (terminal, card accents); sign-in is unchanged.
  */
 export function AccountCard({ children }: { children: React.ReactNode }) {
+  const signUp = usePathname() === routes.signUp;
+
   return (
     <div className="grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[minmax(0,1fr)_440px] lg:gap-16">
-      <BrandPanel />
+      <BrandPanel signUp={signUp} />
 
       <motion.div
         initial={{ opacity: 0, y: 24, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.1 }}
-        className="mx-auto w-full max-w-[440px]"
+        className="relative mx-auto w-full max-w-[440px]"
       >
         <div className={cn(styles.cardEdge, "rounded-2xl p-px")}>
           <div className="rounded-[15px] bg-card/80 p-6 backdrop-blur-md sm:p-8">
@@ -35,12 +41,14 @@ export function AccountCard({ children }: { children: React.ReactNode }) {
             <AnimatedHeight>{children}</AnimatedHeight>
           </div>
         </div>
+        {/* After the card so the edge tags paint above its blurred background. */}
+        <AnimatePresence>{signUp && <SignupCardAccents key="accents" />}</AnimatePresence>
       </motion.div>
     </div>
   );
 }
 
-function BrandPanel() {
+function BrandPanel({ signUp }: { signUp: boolean }) {
   return (
     <motion.section
       variants={staggerContainer}
@@ -81,6 +89,7 @@ function BrandPanel() {
           </motion.li>
         ))}
       </ul>
+      <AnimatePresence>{signUp && <SignupTerminal key="terminal" />}</AnimatePresence>
     </motion.section>
   );
 }

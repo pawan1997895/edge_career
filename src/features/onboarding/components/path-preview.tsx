@@ -3,6 +3,7 @@
 import { Building, GraduationCap, IndianRupee, Route, Sparkles, UserRound, type LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { EASE_OUT } from "@/components/ai-theme/presets";
+import { Cursor } from "@/components/ai-theme/typewriter";
 import { cn } from "@/lib/utils";
 import { LEVEL_LABELS, PERSONA_LABELS, SALARY_LABELS } from "@/types/user";
 import { ONBOARDING_STEPS, type OnboardingAnswers, type OnboardingStepId } from "@/features/onboarding/steps";
@@ -39,6 +40,9 @@ export function PathPreview({ answers, stepIndex, className }: { answers: Onboar
     >
       <p className="flex items-center gap-2 text-xs font-medium text-(--ec-cyan)">
         <Sparkles className="size-3.5" /> Your AI learning path
+        <span aria-hidden className="ml-auto font-mono text-[10px] font-normal text-muted-foreground">
+          {answered}/{ITEMS.length}
+        </span>
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
         {answered === ITEMS.length ? "Everything we need to personalise your plan." : "Builds as you answer."}
@@ -93,6 +97,30 @@ export function PathPreview({ answers, stepIndex, className }: { answers: Onboar
           );
         })}
       </ol>
+
+      {/* Decorative build line under the path. */}
+      <p aria-hidden className="mt-4 flex items-center gap-2 border-t border-border/50 pt-3 font-mono text-[11px]">
+        {answered === ITEMS.length ? (
+          <>
+            <span className="text-emerald-400">✓</span>
+            <span className="text-foreground/85">path.compile() → ready</span>
+          </>
+        ) : (
+          <>
+            <span className="text-(--ec-cyan)">›</span>
+            <span className="text-muted-foreground">compiling path</span>
+            <span className="flex gap-0.5">
+              {ITEMS.map((item, i) => (
+                <span
+                  key={item.id}
+                  className={cn("h-2 w-1.5 rounded-[1px] transition-colors duration-300", i < answered ? "bg-(--ec-cyan)" : "bg-muted")}
+                />
+              ))}
+            </span>
+            <Cursor />
+          </>
+        )}
+      </p>
     </motion.aside>
   );
 }
