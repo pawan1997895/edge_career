@@ -1,0 +1,417 @@
+/*
+ * Design Option 2 — "AI developer command center". A separate client-demo sample: every style it
+ * needs lives in this file or in Tailwind classes inside its own components, so nothing global and
+ * nothing in Design Option 1 changes. The root also carries `dark`, so shared tokens such as
+ * text-muted-foreground resolve to their dark values here.
+ */
+.root {
+  --v2-bg: oklch(0.12 0.012 175);
+  --v2-surface: oklch(0.16 0.014 175);
+  --v2-panel: oklch(0.15 0.013 175 / 0.9);
+  --v2-mint: oklch(0.87 0.19 158);
+  --v2-amber: oklch(0.83 0.16 75);
+  --v2-ice: oklch(0.86 0.09 215);
+  --v2-ink: oklch(0.16 0.02 175); /* text on mint */
+  --v2-line: color-mix(in oklch, var(--v2-mint) 20%, transparent);
+  --v2-line-strong: color-mix(in oklch, var(--v2-mint) 48%, transparent);
+  --v2-cut: 14px;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -10%, oklch(0.24 0.05 168 / 0.9), transparent 70%),
+    radial-gradient(ellipse 45% 40% at 100% 100%, oklch(0.24 0.07 75 / 0.32), transparent 70%),
+    var(--v2-bg);
+  color-scheme: dark;
+}
+
+.display {
+  font-family: var(--font-v2-display), var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+/* ---------- Panels: cut corners, 1px gradient edge, corner ticks ---------- */
+.chamfer {
+  clip-path: polygon(
+    var(--v2-cut) 0,
+    100% 0,
+    100% calc(100% - var(--v2-cut)),
+    calc(100% - var(--v2-cut)) 100%,
+    0 100%,
+    0 var(--v2-cut)
+  );
+}
+
+.panel {
+  composes: chamfer;
+  position: relative;
+  padding: 1px;
+  background: linear-gradient(
+    155deg,
+    var(--v2-line-strong),
+    var(--v2-line) 30%,
+    color-mix(in oklch, var(--v2-mint) 8%, transparent) 65%,
+    color-mix(in oklch, var(--v2-amber) 42%, transparent)
+  );
+}
+
+.panel::before,
+.panel::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
+.panel::before {
+  top: 0;
+  right: 0;
+  border-top: 2px solid var(--v2-mint);
+  border-right: 2px solid var(--v2-mint);
+}
+
+.panel::after {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid var(--v2-amber);
+  border-left: 2px solid var(--v2-amber);
+}
+
+.panelInner {
+  composes: chamfer;
+  height: 100%;
+  background: var(--v2-panel);
+}
+
+/* The focal panel glows along its cut shape. */
+.focusGlow {
+  filter: drop-shadow(0 0 26px color-mix(in oklch, var(--v2-mint) 20%, transparent));
+}
+
+/* ---------- Background ---------- */
+.floor {
+  position: absolute;
+  left: -50%;
+  bottom: 0;
+  width: 200%;
+  height: 100vh;
+  transform-origin: 50% 100%;
+  transform: perspective(800px) rotateX(55deg);
+  overflow: hidden;
+  mask-image: linear-gradient(to top, black 15%, transparent 80%);
+}
+
+.floorGrid {
+  position: absolute;
+  inset: -80px 0 0;
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, var(--v2-mint) 22%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--v2-mint) 22%, transparent) 1px, transparent 1px);
+  background-size: 80px 80px;
+  animation: floor-run 3.2s linear infinite;
+  will-change: transform;
+}
+
+.horizon {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 29vh;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--v2-mint) 65%, transparent) 50%, transparent);
+  box-shadow: 0 0 34px 6px color-mix(in oklch, var(--v2-mint) 16%, transparent);
+}
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.022) 0 1px, transparent 1px 3px);
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, transparent 50%, color-mix(in oklch, var(--v2-bg) 88%, transparent) 100%);
+}
+
+/* A vertical AI scan beam that crosses the screen now and then */
+.beam {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklch, var(--v2-mint) 5%, transparent) 70%,
+      color-mix(in oklch, var(--v2-mint) 30%, transparent) 99%,
+      transparent
+    )
+    right / 220px 100% no-repeat;
+  animation: beam 13s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: transform;
+}
+
+/* Huge outlined numerals behind the panels */
+.giant {
+  font-family: var(--font-v2-display), ui-monospace, monospace;
+  font-weight: 700;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklch, var(--v2-mint) 17%, transparent);
+  user-select: none;
+}
+
+.float {
+  animation: float var(--float-dur, 9s) ease-in-out var(--float-delay, 0s) infinite;
+}
+
+/* Bottom code ticker */
+.ticker {
+  display: flex;
+  width: max-content;
+  animation: ticker 80s linear infinite;
+}
+
+/* ---------- AI radar ---------- */
+.radar {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--v2-mint) 10%, transparent) 0 6%,
+    transparent 6.5% 22%,
+    var(--v2-line) 22.3% 22.8%,
+    transparent 23.2% 44%,
+    var(--v2-line) 44.3% 44.8%,
+    transparent 45.2% 66%,
+    var(--v2-line) 66.3% 66.8%,
+    transparent 67.2% 88%,
+    var(--v2-line-strong) 88.3% 89%,
+    transparent 89.4%
+  );
+}
+
+.radarSweep {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: conic-gradient(from 0deg, color-mix(in oklch, var(--v2-mint) 42%, transparent), transparent 75deg);
+  mask-image: radial-gradient(circle, black 0 88%, transparent 89%);
+  animation: spin 4s linear infinite;
+}
+
+.orbit {
+  position: absolute;
+  inset: 4%;
+  animation: spin 28s linear infinite;
+}
+
+.upright {
+  animation: spin 28s linear infinite reverse;
+}
+
+.blip {
+  animation: blip 4s ease-out infinite;
+}
+
+/* ---------- Typing (mono text: 1ch = one character) ---------- */
+/* Full width is the resting style; the animation only covers the typing (backwards fill). */
+.typed {
+  display: inline-block;
+  overflow: hidden;
+  white-space: pre;
+  vertical-align: top;
+  width: calc(var(--chars) * 1ch);
+  animation: type var(--dur) steps(var(--chars), end) var(--start) backwards;
+}
+
+.reveal {
+  animation: reveal 0s var(--start) backwards;
+}
+
+.cursor {
+  animation: blink 1.05s steps(1) infinite;
+}
+
+/* Cursor that appears at --start, then blinks */
+.cursorAt {
+  animation:
+    reveal 0s var(--start) backwards,
+    blink 1.05s steps(1) var(--start) infinite;
+}
+
+/* ---------- Primary button ---------- */
+.cta {
+  composes: chamfer;
+  --v2-cut: 10px;
+  background: linear-gradient(100deg, var(--v2-mint), var(--v2-ice));
+  color: var(--v2-ink);
+}
+
+.ctaHalo {
+  position: absolute;
+  inset: 6px 10px;
+  z-index: -1;
+  background: linear-gradient(100deg, var(--v2-mint), var(--v2-ice));
+  filter: blur(18px);
+  opacity: 0.4;
+  animation: halo 3s ease-in-out infinite;
+}
+
+.ctaSweep {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 30%;
+  background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.55), transparent);
+  transform: translateX(-120%);
+  animation: cta-sweep 3.8s ease-in-out infinite;
+}
+
+/* ---------- Selection ---------- */
+/* One scan down a card when it gets selected (mounted only while selected). */
+.cardScan {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(in oklch, var(--v2-mint) 14%, transparent) 85%,
+      color-mix(in oklch, var(--v2-mint) 55%, transparent) 99%,
+      transparent
+    )
+    bottom / 100% 70px no-repeat;
+  animation: card-scan 0.8s ease-out forwards;
+}
+
+.pulse {
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+/* Sound button equaliser */
+.eq {
+  transform-origin: bottom;
+  animation: eq 0.85s ease-in-out infinite alternate;
+}
+
+@keyframes eq {
+  from {
+    transform: scaleY(0.3);
+  }
+}
+
+@keyframes floor-run {
+  to {
+    transform: translateY(80px);
+  }
+}
+
+@keyframes beam {
+  0% {
+    transform: translateX(-100%);
+  }
+  55%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes ticker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes blip {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  8% {
+    opacity: 1;
+  }
+}
+
+@keyframes type {
+  from {
+    width: 0;
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes halo {
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes cta-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  50%,
+  100% {
+    transform: translateX(380%);
+  }
+}
+
+@keyframes card-scan {
+  from {
+    transform: translateY(-100%);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floorGrid,
+  .float,
+  .ticker,
+  .radarSweep,
+  .orbit,
+  .upright,
+  .blip,
+  .typed,
+  .reveal,
+  .cursor,
+  .cursorAt,
+  .ctaHalo,
+  .pulse,
+  .eq {
+    animation: none;
+  }
+  .beam,
+  .ctaSweep,
+  .cardScan {
+    display: none;
+  }
+}
