@@ -1,0 +1,308 @@
+/*
+ * Design Option 4 — "Creative AI coding studio" (light theme). A separate client-demo sample: its styles
+ * live in this file or in Tailwind classes inside its own components; nothing global, and nothing in
+ * Options 1–3, changes. The site follows the system light/dark setting, so this root also re-points the
+ * shared colour tokens it relies on (logo, muted text) to light values, locally.
+ * Animations are transform/opacity where possible; there is no canvas.
+ */
+.root {
+  --v4-bg: oklch(0.977 0.011 295);
+  --v4-ink: oklch(0.24 0.02 280);
+  --v4-muted: oklch(0.5 0.025 280);
+  --v4-line: oklch(0.91 0.02 290);
+  --v4-indigo: oklch(0.52 0.24 280);
+  --v4-purple: oklch(0.58 0.25 302);
+  --v4-cyan: oklch(0.72 0.14 222);
+  --v4-violet: oklch(0.8 0.1 305);
+  --v4-card: oklch(1 0 0);
+  --v4-gradient: linear-gradient(120deg, var(--v4-indigo), var(--v4-purple) 55%, var(--v4-cyan));
+  --v4-shadow: 0 24px 60px -30px oklch(0.45 0.2 285 / 0.38);
+
+  /* Shared tokens, light, for this sample only */
+  --background: var(--v4-bg);
+  --foreground: var(--v4-ink);
+  --card: var(--v4-card);
+  --card-foreground: var(--v4-ink);
+  --muted-foreground: var(--v4-muted);
+  --border: var(--v4-line);
+  --primary: var(--v4-indigo);
+  --primary-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.55 0.21 27);
+  --ring: var(--v4-indigo);
+
+  background: var(--v4-bg);
+  color: var(--v4-ink);
+  color-scheme: light;
+  font-family: var(--font-v4), var(--font-inter), system-ui, sans-serif;
+}
+
+.mono {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+/* ---------- Background ---------- */
+.dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, oklch(0.55 0.15 290 / 0.16) 1px, transparent 0);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse at 50% 40%, black 10%, transparent 75%);
+}
+
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  will-change: transform;
+  animation: blob-drift var(--dur, 22s) ease-in-out var(--delay, 0s) infinite alternate;
+}
+
+/* Floating code words and symbols */
+.floatTag {
+  animation: bob var(--dur, 7s) ease-in-out var(--delay, 0s) infinite alternate;
+  will-change: transform;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 9999px;
+  animation: rise var(--dur, 12s) ease-in-out var(--delay, 0s) infinite;
+  will-change: transform, opacity;
+}
+
+/* Gradient connection paths: dashes flow along, a dot travels the curve */
+.flow {
+  stroke-dasharray: 5 9;
+  animation: dash 2.4s linear infinite;
+}
+
+.traveller {
+  position: absolute;
+  top: 0;
+  left: 0;
+  offset-path: var(--path);
+  offset-rotate: 0deg;
+  animation: travel var(--dur, 4s) ease-in-out var(--delay, 0s) infinite;
+}
+
+/* ---------- AI buddy ---------- */
+/* Positioned by the component (absolute, filling its box) */
+.buddy {
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 32% 26%, oklch(1 0 0 / 0.85), transparent 32%),
+    linear-gradient(140deg, var(--v4-indigo), var(--v4-purple) 55%, var(--v4-cyan));
+  box-shadow:
+    0 14px 30px -10px oklch(0.5 0.24 290 / 0.55),
+    inset 0 -6px 12px oklch(0.35 0.2 285 / 0.35);
+  animation: bob 4s ease-in-out infinite alternate;
+}
+
+.buddyRing {
+  position: absolute;
+  inset: -9px;
+  border-radius: 9999px;
+  border: 1.5px dashed oklch(0.6 0.2 290 / 0.45);
+  animation: spin 14s linear infinite;
+}
+
+.eye {
+  display: block;
+  width: 18%;
+  height: 26%;
+  border-radius: 9999px;
+  background: white;
+  animation: blink 5.5s ease-in-out infinite;
+}
+
+/* ---------- Typing (mono text: 1ch = one character; ASCII only) ---------- */
+.typed {
+  display: inline-block;
+  overflow: hidden;
+  white-space: pre;
+  vertical-align: top;
+  width: calc(var(--chars) * 1ch);
+  animation: type var(--dur) steps(var(--chars), end) var(--start) backwards;
+}
+
+.cursorAt {
+  animation:
+    reveal 0s var(--start) backwards,
+    blink-caret 1.05s steps(1) var(--start) infinite;
+}
+
+.cursor {
+  animation: blink-caret 1.05s steps(1) infinite;
+}
+
+/* ---------- Primary button: a slowly flowing gradient ---------- */
+.cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.ctaFlow {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 200%;
+  z-index: -1;
+  background: linear-gradient(90deg, var(--v4-indigo), var(--v4-purple), var(--v4-cyan), var(--v4-purple), var(--v4-indigo));
+  animation: cta-flow 6s linear infinite;
+  will-change: transform;
+}
+
+/* One soft shine across a card when it gets selected (mounted only while selected). */
+.shine {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, oklch(1 0 0 / 0.75), transparent);
+  animation: shine 0.9s ease-out forwards;
+}
+
+.pulse {
+  animation: pulse 2.2s ease-out infinite;
+}
+
+@keyframes blob-drift {
+  to {
+    transform: translate3d(var(--dx, 40px), var(--dy, 30px), 0) scale(1.08);
+  }
+}
+
+@keyframes bob {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(var(--bob, -10px));
+  }
+}
+
+@keyframes rise {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  30%,
+  70% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(-50px);
+  }
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+@keyframes travel {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes blink {
+  0%,
+  90%,
+  100% {
+    transform: scaleY(1);
+  }
+  94% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes type {
+  from {
+    width: 0;
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes blink-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes cta-flow {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes shine {
+  from {
+    transform: translateX(-100%);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(240%);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  to {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob,
+  .floatTag,
+  .particle,
+  .flow,
+  .buddy,
+  .buddyRing,
+  .eye,
+  .typed,
+  .cursorAt,
+  .cursor,
+  .ctaFlow,
+  .pulse {
+    animation: none;
+  }
+  .traveller,
+  .shine {
+    display: none;
+  }
+  .particle {
+    opacity: 0.5;
+  }
+}
