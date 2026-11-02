@@ -7,6 +7,7 @@ import { routes } from "@/lib/routes";
 import { v2Paths } from "@/features/ui-samples/variant-2/paths";
 import { v3Paths } from "@/features/ui-samples/variant-3/paths";
 import { v4Paths } from "@/features/ui-samples/variant-4/paths";
+import { v5Paths } from "@/features/ui-samples/variant-5/paths";
 
 export const metadata: Metadata = { title: "Design options", robots: { index: false, follow: false } };
 
@@ -50,13 +51,25 @@ const OPTIONS = [
   {
     name: "Option 4",
     title: "Creative AI coding studio (light)",
-    tag: "New sample",
+    tag: "Sample",
     description:
       "A fresh light theme: white cards on soft lavender, an animated code editor, a friendly AI mentor, floating code words, icon onboarding cards and Option 2-style sound.",
     swatches: ["oklch(0.52 0.24 280)", "oklch(0.58 0.25 302)", "oklch(0.72 0.14 222)"],
     links: [
       { label: "Signup", href: v4Paths.signup },
       { label: "Onboarding", href: v4Paths.onboarding },
+    ],
+  },
+  {
+    name: "Option 5",
+    title: "Cyberpunk AI coding studio (dark)",
+    tag: "New sample",
+    description:
+      "Near-black with emerald, cyan and violet neon: the form first, an AI core wired to tech labels, a typing code editor, a neon progress bar, a slider-style level picker and Option 2-style sound.",
+    swatches: ["oklch(0.76 0.17 162)", "oklch(0.83 0.14 200)", "oklch(0.67 0.25 302)"],
+    links: [
+      { label: "Signup", href: v5Paths.signup },
+      { label: "Onboarding", href: v5Paths.onboarding },
     ],
   },
 ] as const;
@@ -72,7 +85,7 @@ export default function DesignOptionsPage() {
           Open each design to compare them. Each works end to end with the same questions and demo sign-up; the client can pick one later.
         </p>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
+        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {OPTIONS.map((option) => (
             <section key={option.name} className="flex flex-col rounded-2xl border border-border bg-card/60 p-6">
               <div className="flex items-center justify-between gap-3">

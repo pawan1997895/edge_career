@@ -1,0 +1,308 @@
+/*
+ * Design Option 5 — "Cyberpunk AI coding studio" (dark). A separate client-demo sample: its styles live
+ * in this file or in Tailwind classes inside its own components; nothing global, and nothing in Options
+ * 1–4, changes. The root carries `dark` (so shared tokens resolve dark) and re-points a few of them to
+ * this palette, locally. Animations are CSS transform/opacity where possible, plus small SVG dashes.
+ */
+.root {
+  --v5-bg: oklch(0.145 0.006 165);
+  --v5-card: oklch(0.195 0.008 165);
+  --v5-card-2: oklch(0.225 0.009 165);
+  --v5-line: oklch(1 0 0 / 0.09);
+  --v5-line-strong: oklch(1 0 0 / 0.17);
+  --v5-emerald: oklch(0.76 0.17 162);
+  --v5-cyan: oklch(0.83 0.14 200);
+  --v5-violet: oklch(0.67 0.25 302);
+  --v5-lime: oklch(0.9 0.2 128);
+  --v5-ink: oklch(0.15 0.02 165); /* text on emerald */
+  --v5-gradient: linear-gradient(115deg, var(--v5-emerald), var(--v5-cyan));
+  --v5-neon: linear-gradient(120deg, var(--v5-emerald), var(--v5-cyan) 50%, var(--v5-violet));
+
+  /* Shared tokens, re-pointed for this sample only */
+  --primary: var(--v5-emerald);
+  --primary-foreground: var(--v5-ink);
+  --ring: var(--v5-emerald);
+
+  background:
+    radial-gradient(ellipse 60% 45% at 85% 0%, oklch(0.3 0.08 175 / 0.45), transparent 70%),
+    radial-gradient(ellipse 50% 45% at 0% 100%, oklch(0.3 0.12 300 / 0.35), transparent 70%),
+    var(--v5-bg);
+  color-scheme: dark;
+  font-family: var(--font-v5), var(--font-inter), system-ui, sans-serif;
+}
+
+.mono {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+/* ---------- Background ---------- */
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, var(--v5-emerald) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--v5-emerald) 7%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at 50% 40%, black 20%, transparent 80%);
+}
+
+/* Little lit squares on the grid that glow on and off */
+.cell {
+  position: absolute;
+  width: 47px;
+  height: 47px;
+  background: color-mix(in oklch, var(--v5-emerald) 9%, transparent);
+  animation: cell var(--dur, 7s) ease-in-out var(--delay, 0s) infinite;
+}
+
+.float {
+  animation: bob var(--dur, 7s) ease-in-out var(--delay, 0s) infinite alternate;
+  will-change: transform;
+}
+
+/* Binary data stream: a column of digits drifting down, seamlessly (content is doubled) */
+.stream {
+  animation: stream var(--dur, 9s) linear var(--delay, 0s) infinite;
+  will-change: transform;
+}
+
+/* Glowing connection lines: a short bright dash runs along each path (pathLength = 100) */
+.wire {
+  stroke-dasharray: 2 4;
+}
+
+.pulseDash {
+  stroke-dasharray: 9 100;
+  animation: wire-pulse var(--dur, 3s) linear var(--delay, 0s) infinite;
+}
+
+/* ---------- AI core ---------- */
+.core {
+  position: absolute;
+  inset: 22%;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 34% 30%, oklch(0.98 0.05 160), transparent 32%),
+    radial-gradient(circle, var(--v5-emerald), oklch(0.5 0.15 190) 65%, oklch(0.32 0.12 300));
+  box-shadow:
+    0 0 26px color-mix(in oklch, var(--v5-emerald) 60%, transparent),
+    0 0 60px -10px color-mix(in oklch, var(--v5-cyan) 50%, transparent);
+  animation: core-breathe 3.2s ease-in-out infinite alternate;
+}
+
+.ringA,
+.ringB {
+  position: absolute;
+  border-radius: 9999px;
+}
+
+.ringA {
+  inset: 6%;
+  border: 1.5px solid transparent;
+  border-top-color: var(--v5-emerald);
+  border-right-color: color-mix(in oklch, var(--v5-cyan) 60%, transparent);
+  animation: spin 3.6s linear infinite;
+}
+
+.ringB {
+  inset: -6%;
+  border: 1px dashed color-mix(in oklch, var(--v5-violet) 55%, transparent);
+  animation: spin 14s linear infinite reverse;
+}
+
+/* Expanding ring when the AI reacts to a choice (mounted per reaction) */
+.ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid var(--v5-lime);
+  animation: ripple 0.9s ease-out forwards;
+}
+
+/* ---------- Code editor ---------- */
+.typed {
+  display: inline-block;
+  overflow: hidden;
+  white-space: pre;
+  vertical-align: top;
+  width: calc(var(--chars) * 1ch);
+  animation: type var(--dur) steps(var(--chars), end) var(--start) backwards;
+}
+
+.cursorAt {
+  animation:
+    reveal 0s var(--start) backwards,
+    blink 1.05s steps(1) var(--start) infinite;
+}
+
+/* A soft scan band sweeping down the editor */
+.scan {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent, color-mix(in oklch, var(--v5-cyan) 10%, transparent) 85%, color-mix(in oklch, var(--v5-cyan) 30%, transparent) 99%, transparent)
+    bottom / 100% 80px no-repeat;
+  animation: scan 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ---------- Primary button ---------- */
+.cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--v5-gradient);
+  color: var(--v5-ink);
+}
+
+.cta::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 40%;
+  z-index: -1;
+  background: linear-gradient(100deg, transparent, oklch(1 0 0 / 0.45), transparent);
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+}
+
+.cta:hover:not(:disabled)::after {
+  transform: translateX(300%);
+}
+
+.glowPulse {
+  animation: glow-pulse 2.6s ease-in-out infinite;
+}
+
+.shine {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, color-mix(in oklch, var(--v5-emerald) 22%, transparent), transparent);
+  animation: shine 0.9s ease-out forwards;
+}
+
+@keyframes cell {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes bob {
+  to {
+    transform: translateY(var(--bob, -10px));
+  }
+}
+
+@keyframes stream {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes wire-pulse {
+  from {
+    stroke-dashoffset: 109;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes core-breathe {
+  to {
+    transform: scale(1.07);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes ripple {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes type {
+  from {
+    width: 0;
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  70%,
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes glow-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes shine {
+  from {
+    transform: translateX(-100%);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(240%);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell,
+  .float,
+  .stream,
+  .pulseDash,
+  .core,
+  .ringA,
+  .ringB,
+  .typed,
+  .cursorAt,
+  .glowPulse {
+    animation: none;
+  }
+  .cell,
+  .pulseDash,
+  .scan,
+  .ripple,
+  .shine {
+    display: none;
+  }
+}
