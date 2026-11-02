@@ -1,0 +1,336 @@
+/*
+ * Design Option 3 — "Minimal AI tech experience". A separate client-demo sample: its styles live in
+ * this file or in Tailwind classes inside its own components; nothing global, and nothing in
+ * Options 1 or 2, changes. The root carries `dark`, so shared tokens resolve to dark values.
+ * Every animation here is transform/opacity only (GPU-friendly); there is no canvas.
+ */
+.root {
+  --v3-bg: oklch(0.16 0.008 270);
+  --v3-surface: oklch(0.205 0.01 270);
+  --v3-blue: oklch(0.68 0.16 258);
+  --v3-cyan: oklch(0.82 0.11 210);
+  --v3-violet: oklch(0.66 0.2 295);
+  --v3-line: oklch(1 0 0 / 0.08);
+  --v3-line-strong: oklch(1 0 0 / 0.16);
+  --v3-gradient: linear-gradient(120deg, var(--v3-blue), var(--v3-violet) 55%, var(--v3-cyan));
+  background: var(--v3-bg);
+  color-scheme: dark;
+}
+
+/* ---------- Background ---------- */
+.glow {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.glowTop {
+  composes: glow;
+  width: 64rem;
+  height: 40rem;
+  left: 50%;
+  top: -24rem;
+  margin-left: -32rem;
+  background: radial-gradient(closest-side, color-mix(in oklch, var(--v3-blue) 30%, transparent), transparent);
+  animation: breathe 14s ease-in-out infinite alternate;
+}
+
+.glowCorner {
+  composes: glow;
+  width: 42rem;
+  height: 42rem;
+  right: -16rem;
+  bottom: -20rem;
+  background: radial-gradient(closest-side, color-mix(in oklch, var(--v3-violet) 22%, transparent), transparent);
+  animation: breathe 18s ease-in-out -6s infinite alternate;
+}
+
+/* Thin lines with a soft light travelling along them */
+.lineH,
+.lineV {
+  position: absolute;
+  overflow: hidden;
+}
+
+.lineH {
+  inset-inline: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--v3-line) 15%, var(--v3-line) 85%, transparent);
+}
+
+.lineV {
+  inset-block: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--v3-line) 15%, var(--v3-line) 85%, transparent);
+}
+
+.pulseH,
+.pulseV {
+  position: absolute;
+  will-change: transform;
+}
+
+.pulseH {
+  top: 0;
+  left: 0;
+  width: 160px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--v3-cyan), transparent);
+  animation: travel-x var(--dur, 11s) linear var(--delay, 0s) infinite;
+}
+
+.pulseV {
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 160px;
+  background: linear-gradient(180deg, transparent, var(--v3-violet), transparent);
+  animation: travel-y var(--dur, 13s) linear var(--delay, 0s) infinite;
+}
+
+/* Floating code symbols and glowing particles */
+.symbol {
+  position: absolute;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  user-select: none;
+  animation: drift var(--dur, 12s) ease-in-out var(--delay, 0s) infinite alternate;
+  will-change: transform;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 9999px;
+  background: var(--v3-cyan);
+  box-shadow: 0 0 10px 2px color-mix(in oklch, var(--v3-cyan) 45%, transparent);
+  animation: rise var(--dur, 14s) ease-in-out var(--delay, 0s) infinite;
+  will-change: transform, opacity;
+}
+
+/* ---------- AI orb ---------- */
+.orb {
+  position: relative;
+  width: 104px;
+  height: 104px;
+}
+
+.orbGlow {
+  position: absolute;
+  inset: -40%;
+  border-radius: 9999px;
+  background: radial-gradient(closest-side, color-mix(in oklch, var(--v3-blue) 40%, transparent), transparent);
+  animation: breathe 5s ease-in-out infinite alternate;
+}
+
+.orbCore {
+  position: absolute;
+  inset: 22%;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 32% 28%, oklch(0.97 0.03 230), transparent 34%),
+    radial-gradient(circle at 50% 50%, var(--v3-blue), var(--v3-violet) 70%, oklch(0.4 0.18 295));
+  box-shadow:
+    0 0 30px color-mix(in oklch, var(--v3-blue) 55%, transparent),
+    inset 0 -8px 16px oklch(0.3 0.15 295 / 0.6);
+}
+
+.orbRing {
+  position: absolute;
+  inset: 8%;
+  border-radius: 9999px;
+  background: conic-gradient(from 0deg, transparent, var(--v3-cyan), transparent 40%, var(--v3-violet), transparent 75%);
+  mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), black calc(100% - 1px));
+  animation: spin 9s linear infinite;
+}
+
+.orbit {
+  position: absolute;
+  inset: -14%;
+  animation: spin 26s linear infinite;
+}
+
+.upright {
+  animation: spin 26s linear infinite reverse;
+}
+
+/* ---------- Small code snippets ---------- */
+/* Types, holds, erases, repeats (mono text, so 1ch = one character; ASCII only). */
+.typeLoop {
+  display: inline-block;
+  overflow: hidden;
+  white-space: pre;
+  vertical-align: bottom;
+  width: calc(var(--chars) * 1ch);
+  animation: type-loop var(--dur, 9s) steps(var(--chars), end) var(--delay, 0s) infinite;
+}
+
+/* Types once (resting style is the full line, so it always ends complete). */
+.typeOnce {
+  display: inline-block;
+  overflow: hidden;
+  white-space: pre;
+  vertical-align: bottom;
+  width: calc(var(--chars) * 1ch);
+  animation: type-once var(--dur, 0.8s) steps(var(--chars), end) var(--delay, 0s) backwards;
+}
+
+.cursor {
+  animation: blink 1.1s steps(1) infinite;
+}
+
+/* Straight up-and-down float for the code chips (no tilt) */
+.float {
+  animation: float-y var(--dur, 8s) ease-in-out var(--delay, 0s) infinite alternate;
+}
+
+/* ---------- Controls ---------- */
+.primary {
+  background: var(--v3-gradient);
+  background-size: 140% 100%;
+  transition:
+    background-position 0.5s ease,
+    box-shadow 0.3s ease;
+}
+
+.primary:hover:not(:disabled) {
+  background-position: 100% 0;
+  box-shadow:
+    0 10px 30px -10px color-mix(in oklch, var(--v3-blue) 80%, transparent),
+    0 0 0 1px oklch(1 0 0 / 0.12) inset;
+}
+
+/* One soft shine across a card when it gets selected (mounted only while selected). */
+.shine {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, oklch(1 0 0 / 0.08), transparent);
+  animation: shine 0.9s ease-out forwards;
+}
+
+@keyframes breathe {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes travel-x {
+  from {
+    transform: translateX(-200px);
+  }
+  to {
+    transform: translateX(110vw);
+  }
+}
+
+@keyframes travel-y {
+  from {
+    transform: translateY(-200px);
+  }
+  to {
+    transform: translateY(110vh);
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(var(--dx, 6px), var(--dy, -16px), 0) rotate(var(--rot, 4deg));
+  }
+}
+
+@keyframes float-y {
+  to {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes rise {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  30%,
+  70% {
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-60px);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes type-loop {
+  0% {
+    width: 0;
+  }
+  30%,
+  85% {
+    width: calc(var(--chars) * 1ch);
+  }
+  100% {
+    width: 0;
+  }
+}
+
+@keyframes type-once {
+  from {
+    width: 0;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes shine {
+  from {
+    transform: translateX(-100%);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(240%);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glowTop,
+  .glowCorner,
+  .symbol,
+  .particle,
+  .orbGlow,
+  .orbRing,
+  .orbit,
+  .upright,
+  .typeLoop,
+  .typeOnce,
+  .cursor,
+  .float {
+    animation: none;
+  }
+  .pulseH,
+  .pulseV,
+  .shine {
+    display: none;
+  }
+  .particle {
+    opacity: 0.5;
+  }
+}
